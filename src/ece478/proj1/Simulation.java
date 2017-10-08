@@ -25,19 +25,24 @@ public class Simulation {
 		double [] cNums = new double[cLamb*SIMULATION_TIME];
 		
 		uniformDistribution(aNums, cNums);
+		
 		computeSeries(aNums, cNums);
+		
+		
 		
 	}
 	
 	public void uniformDistribution(double [] aInp, double [] cInp) {
-		double aDistribution = 1/aInp.length;
-		double cDistribution = 1/cInp.length;
+		double aDistribution = (double)1/aInp.length;
+		double cDistribution = (double)1/cInp.length;
 		
 		for (int i = 0; i < aInp.length; i++)
 			aInp[i] = (i+1)*aDistribution;
 		
 		for (int i = 0; i < cInp.length; i++)
 			cInp[i] = (i+1)*cDistribution;
+		
+		
 	}
 	
 	public void computeSeries(double [] aInp, double [] cInp) {
@@ -55,6 +60,13 @@ public class Simulation {
 		
 		for (int i = 1; i < cInp.length; i++)
 			cInp[i] += cInp[i-1];
+		
+		// Divide by 20 microseconds
+		for (int i = 0; i < aInp.length; i++)
+			aInp[i] = Math.ceil(aInp[i]/SLOT_DURATION);
+		
+		for (int i = 0; i < cInp.length; i++)
+			cInp[i] = Math.ceil(cInp[i]/SLOT_DURATION);
 		
 	} // end computeSeries
 	
