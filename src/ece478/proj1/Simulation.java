@@ -48,6 +48,8 @@ public class Simulation {
 		initPackets(aPacks, cPacks, aNums, cNums);
 
 		begin(aPacks, cPacks);
+		
+		print_results();
 	}
 
 	public void begin(Queue<Packet> a, Queue<Packet> c) {
@@ -62,18 +64,20 @@ public class Simulation {
 
 			int readies = 0;
 
-			if (workingA.backoff == 0 && workingA.value <= current_slot)
+			if (workingA != null &&  workingA.backoff == 0 
+					&& workingA.value <= current_slot)
 				readies++;
 
-			if (workingC.backoff == 0 && workingC.value <= current_slot) {
+			if (workingC != null && workingC.backoff == 0 
+					&& workingC.value <= current_slot) {
 				readies++;
 			}
 
 			if (readies == 0) {
 
-				if (workingA.value <= current_slot)
+				if (workingA != null && workingA.value <= current_slot)
 					workingA.updateCounter(channelBusy, false);
-				if (workingC.value <= current_slot)
+				if (workingC != null && workingC.value <= current_slot)
 					workingC.updateCounter(channelBusy, false);
 
 				if (transmitting != null) {
@@ -81,13 +85,13 @@ public class Simulation {
 				}
 			} else if (readies == 1) {
 				if (transmitting == null) {
-					if (workingA.backoff == 0) {
+					if (workingA != null && workingA.backoff == 0) {
 						transmitting = workingA;
 						// pop workingA off queue
 						workingA = a.poll();
 						count_a++;
 					}
-					if (workingC.backoff == 0) {
+					if (workingC != null && workingC.backoff == 0) {
 						transmitting = workingC;
 						// pop workingC off queue
 						workingC = c.poll();
@@ -104,11 +108,11 @@ public class Simulation {
 				collision_count++;
 			}
 
-			if(transmitting.ack == 0) {
-		        transmitting = null;
-		        channelBusy = false;
-		    }
-			
+			if (transmitting != null && transmitting.ack == 0) {
+				transmitting = null;
+				channelBusy = false;
+			}
+
 			// increment slot counter
 			++current_slot;
 		}
@@ -124,7 +128,6 @@ public class Simulation {
 
 		for (int i = 0; i < cInp.length; i++)
 			cInp[i] = (i + 1) * cDistribution;
-
 	}
 
 	public void computeSeries(double[] aInp, double[] cInp) {
@@ -159,4 +162,15 @@ public class Simulation {
 			c.add(new Packet(cD[i], 'c'));
 	}
 
+	public void print_results() {
+		double c_a = (count_a * 12000)/10;
+		double c_c = (count_c * 12000)/10;
+		
+		
+		System.out.println("A Lambda "+aLamb+"   C Lambda "+cLamb);
+		System.out.println("C_a: "+c_a+"  C_c: "+c_c);
+		System.out.println("Collisions: "+collision_count);
+		System.out.println("\n\n");
+	}
+	
 }
