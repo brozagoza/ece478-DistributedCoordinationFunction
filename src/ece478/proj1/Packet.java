@@ -4,58 +4,91 @@ import java.util.Random;
 
 public class Packet {
 
-	final int MAXCW = 1024;
-	double value;
-	int xTime;
-	int collisions;
-	int backoff;
-	int difs;
-	int sifs;
-	int ack;
-	char channel;
+	final int CW_MAX = 1024; // slots
+	final int CW_INITIAL = 4;
 
-	public Packet(double value, char channel) {
-		this.value = value;
+	private int startTime; // starting time of packet
+	private char channel; // channel this packet came from
+	private int collisionCount;
+
+	// following slot times happen in this order:
+	private int difs;
+	private int backoff;
+	private int data;
+	private int sifs;
+	private int ack;
+
+	public Packet(int startTime, char channel) {
+		this.startTime = startTime;
 		this.channel = channel;
-		collisions = 0;
-		backoff = 0;
-		xTime = 100;
-		difs = 2;
-		sifs = 1;
-		ack = 2;
+		this.collisionCount = 0;
+
+		this.difs = 4;
+		this.backoff = randInt(CW_INITIAL);
+		this.data = 100;
+		this.sifs = 1;
+		this.ack = 1;
+	} // end constructor
+
+	// GETTERS ******
+	public char getChannel() {
+		return channel;
 	}
 
-	public int randInt(int min, int max) {
+	public int getStartTime() {
+		return startTime;
+	}
+	// *******
+
+	// helper funct to find randInt from 0 to max exclusive
+	private int randInt(int max) {
 		Random rand = new Random();
-		return rand.nextInt((max - min) + 1) + min;
+		return rand.nextInt(max);
 	}
 
-	public void collisionUpdate() {
-		collisions++;
-		int tempCW = (int) Math.pow(2, collisions) * 4;
-
-		if (MAXCW < tempCW)
-			tempCW = MAXCW;
-
-		backoff = randInt(0, tempCW - 1);
+	// If there was a collision, update the backoff value of this packet
+	public void collision() {
+		++collisionCount;
+		int newCW = (int) (Math.pow(2, collisionCount) * 4);
+		newCW = Math.min(newCW, CW_MAX);
+		backoff = randInt(newCW);
 	}
 
-	public void updateCounter(boolean channelBusy, boolean transmitting) {
-        if(difs >0)
-            difs--;
-        else if (backoff > 0) {
-            if(!channelBusy)
-                backoff--;
-        }
-        else if(transmitting) { 
-            if(xTime > 0)
-                xTime--;
-            else if(sifs > 0)
-                sifs--;
-            else if(ack > 0)
-                ack--;
-        }
-    }
-	
-	
+	// Returns false as long as DIFS and Backoff are being decremented. Returns TRUE
+	// once it is ready to be sent.
+	public boolean isReady() {
+		if (difs > 0) {
+			difs--;
+			return false;
+		}
+
+		if (backoff > 0) {
+			backoff--;
+			return false;
+		}
+
+		return true;
+	}
+
+	// Returns false as long as Data, SIFS, and ACK are being transmitted. Returns
+	// TRUE once the data is complete.
+	public boolean transmit() {
+		if (data > 0) {
+			--data;
+			return false;
+		}
+
+		if (sifs > 0) {
+			--sifs;
+			return false;
+		}
+
+		if (ack > 0) {
+			--ack;
+			return false;
+		}
+
+		return true;
+	}
+
 }
