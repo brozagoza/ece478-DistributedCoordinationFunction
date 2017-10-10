@@ -30,6 +30,10 @@ public class Simulation {
 
 		aPacks = series.getAPacks();
 		cPacks = series.getCPacks();
+
+		Packet a = aPacks.poll();
+		Packet c = cPacks.poll();
+
 	}
 
 	// runsSimulation
@@ -42,23 +46,26 @@ public class Simulation {
 		while (currentSlot < FINAL_SLOT) {
 			if (aPack == null || cPack == null)
 				break;
-			
+
 			if (!channelBusy) {
 				// only if the start time is greater than curSlot will it check. Is ready after
 				// DIFS and backoff
 				boolean aReady = false;
 				boolean cReady = false;
-				
+
 				if (currentSlot >= aPack.getStartTime())
 					aReady = aPack.isReady();
-				
+
 				if (currentSlot >= cPack.getStartTime())
 					cReady = cPack.isReady();
 
 				if (aReady && cReady) {
+
 					aPack.collision();
 					cPack.collision();
+
 					collisionCount++;
+					// System.out.println("**"+collisionCount);
 				} else if (aReady && !cReady) {
 					channelBusy = true;
 					transPack = aPack;
@@ -79,6 +86,7 @@ public class Simulation {
 						aPacketCount++;
 					else
 						cPacketCount++;
+
 				}
 
 			} // end ELSE
@@ -86,13 +94,14 @@ public class Simulation {
 			++currentSlot;
 		} // end while loop
 	} // end run simultion
-	
+
 	public void printResults() {
-		double aThroughPut = (double)(aPacketCount*12000)/10;
-		double cThroughPut = (double)(cPacketCount*12000)/10;
-		
+		double aThroughPut = (double) (aPacketCount * 12000) / 10;
+		double cThroughPut = (double) (cPacketCount * 12000) / 10;
+
 		System.out.printf("LambdaA: %d \t Lambda C: %d\n", aLamb, cLamb);
 		System.out.printf("A Throughput: %f \t C Throughput: %f\n", aThroughPut, cThroughPut);
+		System.out.printf("A# %d\tC#%d\n", aPacketCount, cPacketCount);
 		System.out.printf("Collision Count: %d\n\n", collisionCount);
 	}
 

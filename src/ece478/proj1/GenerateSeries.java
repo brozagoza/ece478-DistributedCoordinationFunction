@@ -24,61 +24,44 @@ public class GenerateSeries {
 		aLamb = a;
 		cLamb = c;
 
-		double[] aNums = new double[aLamb * SIMULATION_TIME];
-		double[] cNums = new double[cLamb * SIMULATION_TIME];
-
-		uniformDistribution(aNums, cNums);
-
-		computeSeries(aNums, cNums);
-
-		// Because I'm too lazy to change the rest of the code dude
 		aPacks = new LinkedList<>();
 		cPacks = new LinkedList<>();
 
-		initPackets(aPacks, cPacks, aNums, cNums);
+		computeSeriesA();
+		computeSeriesC();
+
 	}
 
-	public void uniformDistribution(double[] aInp, double[] cInp) {
-		double aDistribution = (double) 1 / aInp.length;
-		double cDistribution = (double) 1 / cInp.length;
+	public void computeSeriesA() {
+		int runningCount = 0;
+		for (int i = 0; i < SIMULATION_TIME * aLamb; i++) {
+			int tempTime = 0;
+			while (tempTime == 0)
+				tempTime = (int) Math
+						.ceil((((double) -1 / aLamb) * Math.log(1 - Math.random())) / (2 / Math.pow(10, 5)));
 
-		for (int i = 0; i < aInp.length; i++)
-			aInp[i] = (i + 1) * aDistribution;
+			runningCount += tempTime;
+			Packet tempPacket = new Packet(runningCount, 'a');
 
-		for (int i = 0; i < cInp.length; i++)
-			cInp[i] = (i + 1) * cDistribution;
+			aPacks.add(tempPacket);
+		}
+
 	}
 
-	public void computeSeries(double[] aInp, double[] cInp) {
+	public void computeSeriesC() {
+		int runningCount = 0;
 
-		// Compute the Series values
-		for (int i = 0; i < aInp.length; i++)
-			aInp[i] = (-1 / ((double) aLamb)) * Math.log(1 - aInp[i]);
+		for (int i = 0; i < SIMULATION_TIME * cLamb; i++) {
+			int tempTime = 0;
+			while (tempTime == 0)
+				tempTime = (int) Math
+						.ceil((((double) -1 / cLamb) * Math.log(1 - Math.random())) / (2 / Math.pow(10, 5)));
 
-		for (int i = 0; i < cInp.length; i++)
-			cInp[i] = (-1 / ((double) cLamb)) * Math.log(1 - cInp[i]);
+			runningCount += tempTime;
+			Packet tempPacket = new Packet(runningCount, 'c');
 
-		// Divide by 20 microseconds
-		for (int i = 0; i < aInp.length; i++)
-			aInp[i] = Math.ceil(aInp[i] / SLOT_DURATION);
-
-		for (int i = 0; i < cInp.length; i++)
-			cInp[i] = Math.ceil(cInp[i] / SLOT_DURATION);
-
-		// Add the previous numbers together
-		for (int i = 1; i < aInp.length; i++)
-			aInp[i] += aInp[i - 1];
-
-		for (int i = 1; i < cInp.length; i++)
-			cInp[i] += cInp[i - 1];
-
-	} // end computeSeries
-
-	public void initPackets(Queue<Packet> a, Queue<Packet> c, double[] aD, double[] cD) {
-		for (int i = 0; i < aD.length - 1; i++)
-			a.add(new Packet((int)aD[i], 'a'));
-		for (int i = 0; i < cD.length - 1; i++)
-			c.add(new Packet((int)cD[i], 'c'));
+			cPacks.add(tempPacket);
+		}
 	}
 
 	public Queue<Packet> getAPacks() {

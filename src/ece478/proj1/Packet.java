@@ -38,6 +38,10 @@ public class Packet {
 	public int getStartTime() {
 		return startTime;
 	}
+	
+	public int getBackoff() {
+		return backoff;
+	}
 	// *******
 
 	// helper funct to find randInt from 0 to max exclusive
@@ -68,6 +72,10 @@ public class Packet {
 		}
 
 		return true;
+	}
+	
+	public void resetDifs() {
+		difs = 4;
 	}
 
 	// Returns false as long as Data, SIFS, and ACK are being transmitted. Returns
