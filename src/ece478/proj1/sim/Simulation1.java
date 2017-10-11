@@ -1,12 +1,11 @@
-package ece478.proj1.sim1;
+package ece478.proj1.sim;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Queue;
 
 import ece478.proj1.resources.GenerateSeries;
+import ece478.proj1.resources.Packet;
 
-public class Simulation {
+public class Simulation1 {
 
 	final int FINAL_SLOT = 500000; // amount of slots to go through
 
@@ -20,7 +19,7 @@ public class Simulation {
 	private Queue<Packet> aPacks; // A Packets
 	private Queue<Packet> cPacks; // C Packets
 
-	public Simulation(int aLambInp, int cLambInp) {
+	public Simulation1(int aLambInp, int cLambInp) {
 		aLamb = aLambInp;
 		cLamb = cLambInp;
 		currentSlot = 0;
@@ -32,10 +31,6 @@ public class Simulation {
 
 		aPacks = series.getAPacks();
 		cPacks = series.getCPacks();
-
-		Packet a = aPacks.poll();
-		Packet c = cPacks.poll();
-
 	}
 
 	// runsSimulation

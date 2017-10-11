@@ -1,6 +1,6 @@
 package ece478.proj1.resources;
 
-import ece478.proj1.sim1.Simulation;
+import ece478.proj1.sim.Simulation1;
 
 public class Driver {
 
@@ -12,7 +12,7 @@ public class Driver {
 		System.out.println("Topology A : Scenario 1 : A=C");
 		System.out.println("***************************************************");
 		for (int i = 0; i < 4; i++) {
-			Simulation scenarioA = new Simulation(lambdas[i], lambdas[i]);
+			Simulation1 scenarioA = new Simulation1(lambdas[i], lambdas[i]);
 			scenarioA.runSimulation();
 			scenarioA.printResults();
 		}
@@ -23,7 +23,7 @@ public class Driver {
 		System.out.println("Topology A : Scenario 1 : A=2*C");
 		System.out.println("***************************************************");
 		for (int i = 0; i < 4; i++) {
-			Simulation scenarioA = new Simulation(2 * lambdas[i], lambdas[i]);
+			Simulation1 scenarioA = new Simulation1(2 * lambdas[i], lambdas[i]);
 			scenarioA.runSimulation();
 			scenarioA.printResults();
 		}

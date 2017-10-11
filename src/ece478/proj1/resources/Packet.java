@@ -1,4 +1,4 @@
-package ece478.proj1.sim1;
+package ece478.proj1.resources;
 
 import java.util.Random;
 
