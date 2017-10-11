@@ -1,7 +1,9 @@
-package ece478.proj1;
+package ece478.proj1.resources;
 
 import java.util.LinkedList;
 import java.util.Queue;
+
+import ece478.proj1.sim1.Packet;
 
 public class GenerateSeries {
 

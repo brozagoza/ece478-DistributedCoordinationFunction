@@ -1,4 +1,4 @@
-package ece478.proj1;
+package ece478.proj1.sim1;
 
 import java.util.Random;
 
@@ -11,6 +11,7 @@ public class Packet {
 	private char channel; // channel this packet came from
 	private int collisionCount;
 
+	// TODO: Add RTS and CTS and specify in the constructor if these are necessary
 	// following slot times happen in this order:
 	private int difs;
 	private int backoff;
@@ -37,10 +38,6 @@ public class Packet {
 
 	public int getStartTime() {
 		return startTime;
-	}
-	
-	public int getBackoff() {
-		return backoff;
 	}
 	// *******
 
@@ -73,7 +70,7 @@ public class Packet {
 
 		return true;
 	}
-	
+
 	public void resetDifs() {
 		difs = 4;
 	}
