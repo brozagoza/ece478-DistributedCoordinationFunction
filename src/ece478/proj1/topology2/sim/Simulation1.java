@@ -1,4 +1,4 @@
-package ece478.proj1.sim;
+package ece478.proj1.topology2.sim;
 
 import java.util.Queue;
 
@@ -27,70 +27,32 @@ public class Simulation1 {
 		cPacketCount = 0;
 		collisionCount = 0;
 
-		GenerateSeries series = new GenerateSeries(aLamb, cLamb);
+		GenerateSeries series = new GenerateSeries(aLamb, cLamb, false);
 
 		aPacks = series.getAPacks();
 		cPacks = series.getCPacks();
+
 	}
 
-	// runsSimulation
+	/*
+	 * THIS IS THE VERSION WITH NO RTS AND CTS, SO COLLISIONS WILL BE YUUGGEE
+	 * 
+	 * When time matches one of the packets from A or C, it will start sending it's
+	 * packets. If it doesn't receive an ACK when it should have, indicating that it
+	 * was successful, then it never got delivered! In this case, recalculated
+	 * backoff and try again. If at any point a new packet interrupts another packet
+	 * from completing it's transmission, then the receiver just farts and gives up
+	 * and sends no one an ack. Collisions will be through the roof.
+	 */
 	public void runSimulation() {
 		boolean channelBusy = false;
 		Packet aPack = aPacks.poll(); // current A packet
 		Packet cPack = cPacks.poll(); // current C packet
 		Packet transPack = null;
 
-		while (currentSlot < FINAL_SLOT) {
-			if (aPack == null || cPack == null)
-				break;
+		
 
-			if (!channelBusy) {
-				// only if the start time is greater than curSlot will it check. Is ready after
-				// DIFS and backoff
-				boolean aReady = false;
-				boolean cReady = false;
-
-				if (currentSlot >= aPack.getStartTime())
-					aReady = aPack.isReady();
-
-				if (currentSlot >= cPack.getStartTime())
-					cReady = cPack.isReady();
-
-				if (aReady && cReady) {
-
-					aPack.collision();
-					cPack.collision();
-
-					collisionCount++;
-					// System.out.println("**"+collisionCount);
-				} else if (aReady && !cReady) {
-					channelBusy = true;
-					transPack = aPack;
-					aPack = aPacks.poll();
-				} else if (!aReady && cReady) {
-					channelBusy = true;
-					transPack = cPack;
-					cPack = cPacks.poll();
-				}
-
-			} // end IF
-			else {
-
-				if (transPack.transmit()) {
-					channelBusy = false;
-
-					if (transPack.getChannel() == 'a')
-						aPacketCount++;
-					else
-						cPacketCount++;
-
-				}
-
-			} // end ELSE
-
-			++currentSlot;
-		} // end while loop
-	} // end run simultion
+	}
 
 	public void printResults() {
 		double aThroughPut = (double) (aPacketCount * 12000) / 10;

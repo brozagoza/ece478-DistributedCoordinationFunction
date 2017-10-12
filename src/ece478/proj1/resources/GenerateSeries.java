@@ -18,12 +18,14 @@ public class GenerateSeries {
 
 	private int aLamb;
 	private int cLamb;
+	private boolean rtsCtsEnabled;
 	private Queue<Packet> aPacks;
 	private Queue<Packet> cPacks;
 
-	public GenerateSeries(int a, int c) {
+	public GenerateSeries(int a, int c, boolean rtsCtsEnabled) {
 		aLamb = a;
 		cLamb = c;
+		this.rtsCtsEnabled = rtsCtsEnabled;
 
 		aPacks = new LinkedList<>();
 		cPacks = new LinkedList<>();
@@ -42,7 +44,7 @@ public class GenerateSeries {
 						.ceil((((double) -1 / aLamb) * Math.log(1 - Math.random())) / (2 / Math.pow(10, 5)));
 
 			runningCount += tempTime;
-			Packet tempPacket = new Packet(runningCount, 'a');
+			Packet tempPacket = new Packet(runningCount, 'a', rtsCtsEnabled);
 
 			aPacks.add(tempPacket);
 		}
@@ -59,7 +61,7 @@ public class GenerateSeries {
 						.ceil((((double) -1 / cLamb) * Math.log(1 - Math.random())) / (2 / Math.pow(10, 5)));
 
 			runningCount += tempTime;
-			Packet tempPacket = new Packet(runningCount, 'c');
+			Packet tempPacket = new Packet(runningCount, 'c', rtsCtsEnabled);
 
 			cPacks.add(tempPacket);
 		}

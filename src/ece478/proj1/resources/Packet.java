@@ -10,25 +10,40 @@ public class Packet {
 	private int startTime; // starting time of packet
 	private char channel; // channel this packet came from
 	private int collisionCount;
+	private boolean rtsCtsEnabled;
+	private boolean inTransmission;
 
 	// TODO: Add RTS and CTS and specify in the constructor if these are necessary
 	// following slot times happen in this order:
 	private int difs;
 	private int backoff;
+	private int rts;
+	private int cts;
 	private int data;
 	private int sifs;
 	private int ack;
 
-	public Packet(int startTime, char channel) {
+	public Packet(int startTime, char channel, boolean rtsCtsEnabled) {
 		this.startTime = startTime;
 		this.channel = channel;
 		this.collisionCount = 0;
-
+		
 		this.difs = 4;
 		this.backoff = randInt(CW_INITIAL);
 		this.data = 100;
 		this.sifs = 1;
 		this.ack = 1;
+		
+		// RTS and CTS Enabled ?
+		if (rtsCtsEnabled) {
+			this.rtsCtsEnabled = true;
+			this.rts = 1;
+			this.cts = 1;
+		} else {
+			this.rtsCtsEnabled = false;
+			rts = 1;
+			cts = 1;
+		}
 	} // end constructor
 
 	// GETTERS ******
@@ -38,6 +53,10 @@ public class Packet {
 
 	public int getStartTime() {
 		return startTime;
+	}
+	
+	public boolean inTransit() {
+		return inTransmission;
 	}
 	// *******
 
@@ -49,7 +68,11 @@ public class Packet {
 
 	// If there was a collision, update the backoff value of this packet
 	public void collision() {
+		data = 100;
+		
 		++collisionCount;
+		if (rtsCtsEnabled)
+			rts = 1;
 		int newCW = (int) (Math.pow(2, collisionCount) * 4);
 		newCW = Math.min(newCW, CW_MAX);
 		backoff = randInt(newCW);
@@ -67,17 +90,23 @@ public class Packet {
 			backoff--;
 			return false;
 		}
+		
+		if (rts > 0) {
+			rts--;
+			return false;
+		}
 
 		return true;
-	}
-
-	public void resetDifs() {
-		difs = 4;
 	}
 
 	// Returns false as long as Data, SIFS, and ACK are being transmitted. Returns
 	// TRUE once the data is complete.
 	public boolean transmit() {
+		if (cts > 0) {
+			--cts;
+			return false;
+		}
+		
 		if (data > 0) {
 			--data;
 			return false;
