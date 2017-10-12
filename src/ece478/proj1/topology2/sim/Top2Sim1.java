@@ -5,7 +5,7 @@ import java.util.Queue;
 import ece478.proj1.resources.GenerateSeries;
 import ece478.proj1.resources.Packet;
 
-public class Simulation1 {
+public class Top2Sim1 {
 
 	final int FINAL_SLOT = 500000; // amount of slots to go through
 
@@ -19,7 +19,7 @@ public class Simulation1 {
 	private Queue<Packet> aPacks; // A Packets
 	private Queue<Packet> cPacks; // C Packets
 
-	public Simulation1(int aLambInp, int cLambInp) {
+	public Top2Sim1(int aLambInp, int cLambInp) {
 		aLamb = aLambInp;
 		cLamb = cLambInp;
 		currentSlot = 0;
@@ -45,12 +45,62 @@ public class Simulation1 {
 	 * and sends no one an ack. Collisions will be through the roof.
 	 */
 	public void runSimulation() {
-		boolean channelBusy = false;
 		Packet aPack = aPacks.poll(); // current A packet
 		Packet cPack = cPacks.poll(); // current C packet
-		Packet transPack = null;
+		int aExpectedCompletionTime = -1;
+		int cExpectedCompletionTime = -1;
+		int aCollisionCount = 0;
+		int cCollisionCount = 0;
 
-		
+		while (currentSlot < FINAL_SLOT) {
+			boolean aReady = aPack != null && aPack.isReady();
+			boolean cReady = cPack != null && cPack.isReady();
+
+			if (aExpectedCompletionTime == currentSlot) {
+				// the ack has been received
+				if (aPack != null && aPack.transmissionComplete()) {
+					aPacketCount++;
+					aPack = aPacks.poll();
+				}
+				// the ack was not received
+				else {
+					aCollisionCount++;
+					aPack.collision();
+				}
+			} // end IF STATEMENT **************************************
+
+			if (cExpectedCompletionTime == currentSlot) {
+				// the ack has been received
+				if (cPack != null && cPack.transmissionComplete()) {
+					cPacketCount++;
+					cPack = cPacks.poll();
+				}
+				// the ack was not received
+				else {
+					cCollisionCount++;
+					cPack.collision();
+				}
+			} // end IF STATEMENT **************************************
+
+			if (aPack != null && cPack != null && aPack.inTransit() && cPack.inTransit()) {
+				aPack.stopTransmission();
+				cPack.stopTransmission();
+				++collisionCount;
+			} else if (aPack != null && aPack.getStartTime() <= currentSlot && aReady && !aPack.inTransit()) {
+				aPack.transmit();
+				aExpectedCompletionTime = currentSlot + 103;
+			} else if (aPack != null && aPack.inTransit())
+				aPack.transmit();
+			else if (cPack != null && cPack.getStartTime() <= currentSlot && cReady && !cPack.inTransit()) {
+				cPack.transmit();
+				cExpectedCompletionTime = currentSlot + 103;
+			} else if (cPack != null && cPack.inTransit())
+				cPack.transmit();
+
+			++currentSlot;
+		} // end while loop
+
+		collisionCount += aCollisionCount + cCollisionCount;
 
 	}
 

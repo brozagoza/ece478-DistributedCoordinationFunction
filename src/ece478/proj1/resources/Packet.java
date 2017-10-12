@@ -41,8 +41,8 @@ public class Packet {
 			this.cts = 1;
 		} else {
 			this.rtsCtsEnabled = false;
-			rts = 1;
-			cts = 1;
+			rts = 0;
+			cts = 0;
 		}
 	} // end constructor
 
@@ -58,7 +58,16 @@ public class Packet {
 	public boolean inTransit() {
 		return inTransmission;
 	}
+	
+	public boolean transmissionComplete() {
+		return ack == 0;
+	}
+	
+	public void stopTransmission() {
+		inTransmission = false;
+	}
 	// *******
+	
 
 	// helper funct to find randInt from 0 to max exclusive
 	private int randInt(int max) {
@@ -69,6 +78,7 @@ public class Packet {
 	// If there was a collision, update the backoff value of this packet
 	public void collision() {
 		data = 100;
+		inTransmission = false;
 		
 		++collisionCount;
 		if (rtsCtsEnabled)
@@ -102,6 +112,8 @@ public class Packet {
 	// Returns false as long as Data, SIFS, and ACK are being transmitted. Returns
 	// TRUE once the data is complete.
 	public boolean transmit() {
+		inTransmission = true;
+		
 		if (cts > 0) {
 			--cts;
 			return false;

@@ -6,7 +6,7 @@ import ece478.proj1.resources.GenerateSeries;
 import ece478.proj1.resources.Packet;
 
 // Topology A : Scenario 1
-public class Simulation1 {
+public class Top1Sim1 {
 
 	final int FINAL_SLOT = 500000; // amount of slots to go through
 
@@ -20,7 +20,7 @@ public class Simulation1 {
 	private Queue<Packet> aPacks; // A Packets
 	private Queue<Packet> cPacks; // C Packets
 
-	public Simulation1(int aLambInp, int cLambInp) {
+	public Top1Sim1(int aLambInp, int cLambInp) {
 		aLamb = aLambInp;
 		cLamb = cLambInp;
 		currentSlot = 0;
@@ -42,8 +42,6 @@ public class Simulation1 {
 		Packet transPack = null;
 
 		while (currentSlot < FINAL_SLOT) {
-			if (aPack == null || cPack == null)
-				break;
 
 			if (!channelBusy) {
 				// only if the start time is greater than curSlot will it check. Is ready after
@@ -51,22 +49,21 @@ public class Simulation1 {
 				boolean aReady = false;
 				boolean cReady = false;
 
-				if (currentSlot >= aPack.getStartTime())
+				if (aPack != null && currentSlot >= aPack.getStartTime())
 					aReady = aPack.isReady();
 
-				if (currentSlot >= cPack.getStartTime())
+				if (cPack != null && currentSlot >= cPack.getStartTime())
 					cReady = cPack.isReady();
 
-				if (aReady && cReady) {
+				if (aPack != null && cPack != null && aReady && cReady) {
 					aPack.collision();
 					cPack.collision();
 					collisionCount++;
-					// System.out.println("**"+collisionCount);
-				} else if (aReady && !cReady) {
+				} else if (aPack != null && aReady) {
 					channelBusy = true;
 					transPack = aPack;
 					aPack = aPacks.poll();
-				} else if (!aReady && cReady) {
+				} else if (cPack != null  && cReady) {
 					channelBusy = true;
 					transPack = cPack;
 					cPack = cPacks.poll();
@@ -74,10 +71,8 @@ public class Simulation1 {
 
 			} // end IF
 			else {
-
 				if (transPack.transmit()) {
 					channelBusy = false;
-
 					if (transPack.getChannel() == 'a')
 						aPacketCount++;
 					else

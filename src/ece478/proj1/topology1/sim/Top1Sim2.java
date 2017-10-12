@@ -6,7 +6,7 @@ import ece478.proj1.resources.GenerateSeries;
 import ece478.proj1.resources.Packet;
 
 // Topology A : Scenario 2
-public class Simulation2 {
+public class Top1Sim2 {
 
 	final int FINAL_SLOT = 500000; // amount of slots to go through
 
@@ -20,7 +20,7 @@ public class Simulation2 {
 	private Queue<Packet> aPacks; // A Packets
 	private Queue<Packet> cPacks; // C Packets
 
-	public Simulation2(int aLambInp, int cLambInp) {
+	public Top1Sim2(int aLambInp, int cLambInp) {
 		aLamb = aLambInp;
 		cLamb = cLambInp;
 		currentSlot = 0;
@@ -51,21 +51,21 @@ public class Simulation2 {
 				boolean aReady = false;
 				boolean cReady = false;
 
-				if (currentSlot >= aPack.getStartTime())
+				if (aPack != null && currentSlot >= aPack.getStartTime())
 					aReady = aPack.isReady();
 
-				if (currentSlot >= cPack.getStartTime())
+				if (cPack != null && currentSlot >= cPack.getStartTime())
 					cReady = cPack.isReady();
 
-				if (aReady && cReady) {
+				if (aPack != null && cPack != null && aReady && cReady) {
 					aPack.collision();
 					cPack.collision();
 					collisionCount++;
-				} else if (aReady && !cReady) {
+				} else if (aPack != null && aReady) {
 					channelBusy = true;
 					transPack = aPack;
 					aPack = aPacks.poll();
-				} else if (!aReady && cReady) {
+				} else if (cPack != null && cReady) {
 					channelBusy = true;
 					transPack = cPack;
 					cPack = cPacks.poll();
